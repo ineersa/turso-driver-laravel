@@ -21,7 +21,7 @@ class LibSQLPDOStatement extends PDOStatement
     protected array $lastInsertIds = [];
 
     public function __construct(
-        protected LibSQL $db,
+        protected LibSQLDatabase $pdo,
         protected string $query
     ) {
         // Use regex to find and replace incorrect table prefixes in the SET clause
@@ -53,43 +53,20 @@ class LibSQLPDOStatement extends PDOStatement
             });
 
         if (str_starts_with(strtolower($this->query), 'select')) {
-            $this->response = $this->db->query($this->query, array_column($this->bindings, 'value'))->fetchArray(LibSQL::LIBSQL_ALL);
+            $this->response = $this->pdo->getDb()->query($this->query, array_column($this->bindings, 'value'))->fetchArray(LibSQL::LIBSQL_ALL);
         } else {
-//            $response = $this->db->execute($this->query, array_column($this->bindings, 'value'));
-//
-//            return $response > 0;
-            $statement = $this->db->prepare($this->query);
+            $statement = $this->pdo->getDb()->prepare($this->query);
             $this->response = $statement->query(array_column($this->bindings, 'value'))->fetchArray(LibSQL::LIBSQL_ALL);
         }
 
         $lastId = (int) $this->response['last_insert_rowid'];
         if ($lastId > 0) {
-            $this->setLastInsertId(value: $lastId);
+            $this->pdo->setLastInsertId(value: $lastId);
         }
 
-        $this->affectedRows = $this->response['rows_affected'];
+        $this->affectedRows = $this->response['rows_affected'] ?? [];
 
         return $this->affectedRows > 0;
-    }
-
-    public function setLastInsertId(?string $name = null, ?int $value = null): void
-    {
-        if ($name === null) {
-            $name = 'id';
-        }
-
-        $this->lastInsertIds[$name] = $value;
-    }
-
-    public function lastInsertId(?string $name = null): string|false
-    {
-        if ($name === null) {
-            $name = 'id';
-        }
-
-        return (isset($this->lastInsertIds[$name]))
-            ? (string) $this->lastInsertIds[$name]
-            : false;
     }
 
     public function fetch(
@@ -155,6 +132,6 @@ class LibSQLPDOStatement extends PDOStatement
 
     public function rowCount(): int
     {
-        return max((int) count($this->response['rows']), $this->affectedRows);
+        return max(count($this->response['rows'] ?? []), $this->affectedRows);
     }
 }

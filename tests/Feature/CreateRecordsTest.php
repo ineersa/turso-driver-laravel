@@ -5,14 +5,7 @@ namespace Turso\Driver\Laravel\Tests\Feature;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use LibSQL;
-use PHPUnit\Framework\Attributes\DataProvider;
-use Turso\Driver\Laravel\Database\LibSQLConnection;
-use Turso\Driver\Laravel\Database\LibSQLConnector;
-use Turso\Driver\Laravel\Database\LibSQLDatabase;
-use Turso\Driver\Laravel\Exceptions\ConfigurationIsNotFound;
 use Illuminate\Support\Facades\Schema;
-
 
 class CreateRecordsTest extends TestCase
 {
@@ -63,7 +56,7 @@ class CreateRecordsTest extends TestCase
             ->table('test')
             ->insertGetId([
                 'text' => 'text',
-                'json' => json_encode(['test'=>'test']),
+                'json' => json_encode(['test' => 'test']),
                 'string' => 'string',
             ]);
         $this->assertEquals(1, $id);
@@ -72,7 +65,7 @@ class CreateRecordsTest extends TestCase
             ->table('test')
             ->insert([
                 'text' => 'text2',
-                'json' => json_encode(['test2'=>'test']),
+                'json' => json_encode(['test2' => 'test']),
                 'string' => 'string2',
             ]);
 
@@ -87,7 +80,8 @@ class CreateRecordsTest extends TestCase
 
     public function testCreateViaEloquent(): void
     {
-        $modelClass = new class extends Model {
+        $modelClass = new class extends Model
+        {
             protected $connection = 'local_file';
 
             protected $table = 'test';

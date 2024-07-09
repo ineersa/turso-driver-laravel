@@ -68,7 +68,7 @@ class LibSQLDatabase
 
     public function prepare(string $sql): LibSQLPDOStatement
     {
-        return new LibSQLPDOStatement($this->db, $sql);
+        return new LibSQLPDOStatement($this, $sql);
     }
 
     public function query(string $sql, array $params = [])
@@ -78,13 +78,22 @@ class LibSQLDatabase
 
     public function lastInsertId(?string $name = null): string|false
     {
-        $result = $this->db->query('SELECT last_insert_rowid() AS rowid')
-            ->fetchArray();
-
-        if ($result && $result[0]) {
-            return $result[0]['rowid'] ?? false;
+        if ($name === null) {
+            $name = 'id';
         }
-        return false;
+
+        return (isset($this->lastInsertIds[$name]))
+            ? (string) $this->lastInsertIds[$name]
+            : false;
+    }
+
+    public function setLastInsertId(?string $name = null, ?int $value = null): void
+    {
+        if ($name === null) {
+            $name = 'id';
+        }
+
+        $this->lastInsertIds[$name] = $value;
     }
 
     public function rollBack(): bool
