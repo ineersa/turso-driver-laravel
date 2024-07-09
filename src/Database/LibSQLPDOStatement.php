@@ -55,6 +55,9 @@ class LibSQLPDOStatement extends PDOStatement
         if (str_starts_with(strtolower($this->query), 'select')) {
             $this->response = $this->db->query($this->query, array_column($this->bindings, 'value'))->fetchArray(LibSQL::LIBSQL_ALL);
         } else {
+//            $response = $this->db->execute($this->query, array_column($this->bindings, 'value'));
+//
+//            return $response > 0;
             $statement = $this->db->prepare($this->query);
             $this->response = $statement->query(array_column($this->bindings, 'value'))->fetchArray(LibSQL::LIBSQL_ALL);
         }
