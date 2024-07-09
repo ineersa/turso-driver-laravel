@@ -76,24 +76,15 @@ class LibSQLDatabase
         return $this->db->query($sql, $params)->fetchArray();
     }
 
-    public function setLastInsertId(?string $name = null, ?int $value = null): void
-    {
-        if ($name === null) {
-            $name = 'id';
-        }
-
-        $this->lastInsertIds[$name] = $value;
-    }
-
     public function lastInsertId(?string $name = null): string|false
     {
-        if ($name === null) {
-            $name = 'id';
-        }
+        $result = $this->db->query('SELECT last_insert_rowid() AS rowid')
+            ->fetchArray();
 
-        return (isset($this->lastInsertIds[$name]))
-            ? (string) $this->lastInsertIds[$name]
-            : false;
+        if ($result && $result[0]) {
+            return $result[0]['rowid'] ?? false;
+        }
+        return false;
     }
 
     public function rollBack(): bool
