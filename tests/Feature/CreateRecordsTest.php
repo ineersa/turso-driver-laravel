@@ -111,5 +111,13 @@ class CreateRecordsTest extends TestCase
             ->select()
             ->get();
         $this->assertEquals(1, count($data));
+
+        // testing that grammar is correct and json is working
+        $result = $model::query()
+            ->where(function ($query) {
+                $query->where('json->test', 'test');
+            })
+            ->first();
+        $this->assertEquals(1, $result->id);
     }
 }
