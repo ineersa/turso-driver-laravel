@@ -78,6 +78,10 @@ class LibSQLPDOStatement extends PDOStatement
             $mode = $this->fetchMode;
         }
 
+        if (empty($this->response['rows'])) {
+            return false;
+        }
+
         $rows = array_shift($this->response['rows']);
         $rowValues = array_values($rows);
 
